@@ -1,3 +1,4 @@
+const path = require('path')
 const express = require("express");
 const xss = require("xss");
 const ArticlesService = require("./articles-service");
@@ -37,7 +38,7 @@ articlesRouter
 
     ArticlesService.insertArticle(req.app.get("db"), newArticle)
       .then(article => {
-        res.status(201).location(`/articles/${article.id}`);
+        res.status(201).location(path.posix.join(req.originalUrl + `${article.id}`));
         res.json({
           id: article.id,
           style: article.style,
