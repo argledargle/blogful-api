@@ -1,4 +1,4 @@
-const path = require('path')
+const path = require("path");
 const express = require("express");
 const xss = require("xss");
 const ArticlesService = require("./articles-service");
@@ -7,12 +7,12 @@ const articlesRouter = express.Router();
 const jsonParser = express.json();
 
 const serializeArticle = article => ({
-    id: article.id,
-    style: article.style,
-    title: xss(article.title),
-    content: xss(article.content),
-    date_published: article.date_published,
-  })
+  id: article.id,
+  style: article.style,
+  title: xss(article.title),
+  content: xss(article.content),
+  date_published: article.date_published
+});
 
 articlesRouter
   .route("/")
@@ -38,7 +38,9 @@ articlesRouter
 
     ArticlesService.insertArticle(req.app.get("db"), newArticle)
       .then(article => {
-        res.status(201).location(path.posix.join(req.originalUrl + `${article.id}`));
+        res
+          .status(201)
+          .location(path.posix.join(req.originalUrl + `${article.id}`));
         res.json({
           id: article.id,
           style: article.style,
@@ -74,6 +76,9 @@ articlesRouter
         res.status(204).end();
       })
       .catch(next);
+  })
+  .patch((req, res) => {
+    res.status(204).end();
   });
 
 module.exports = articlesRouter;
