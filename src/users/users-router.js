@@ -17,8 +17,8 @@ const serializeUser = user => ({
 usersRouter
   .route("/")
   .get((req, res, next) => {
-    const knextInstance = req.app.get("db");
-    UsersService.getAllUsers(knextInstance)
+    const knexInstance = req.app.get("db");
+    UsersService.getAllUsers(knexInstance)
       .then(users => {
         res.json(users.map(serializeUser));
       })
@@ -44,18 +44,18 @@ usersRouter
         res
           .status(201)
           .location(path.posix.join(req.originalUrl, `/${user.id}`))
-          .json(serialUser(user));
+          .json(serializeUser(user));
       })
       .catch(next);
   });
 
 usersRouter
-  .router("/:user_id")
+  .route("/:user_id")
   .all((req, res, next) => {
     UsersService.getById(req.app.get("db"), req.params.user_id)
       .then(user => {
         if (!user) {
-          return res.status(400).json({
+          return res.status(404).json({
             error: { message: `User doesn't exist` }
           });
         }
@@ -64,20 +64,33 @@ usersRouter
       })
       .catch(next);
   })
+  .get((req, res, next) => {
+    res.json(serializeUser(res.user));
+  })
+  .delete((req, res, next) => {
+    UsersService.deleteUser(req.app.get("db"), req.params.user_id)
+      .then(numRowsAffected => {
+        res.status(204).end();
+      })
+      .catch(next);
+  })
   .patch(jsonParser, (req, res, next) => {
     const { fullname, username, password, nickname } = req.body;
     const userToUpdate = { fullname, username, password, nickname };
 
-    const numberOfValues = Object.values(userToupdate).filter(Boolean).length;
+    const numberOfValues = Object.values(userToUpdate).filter(Boolean).length;
     if (numberOfValues === 0)
       return res.status(400).json({
         error: {
-          message: `Request body must contain either 'fullname', 'username', 'password' or 'nickname'`
+          message: `Request body must content either 'fullname', 'username', 'password' or 'nickname'`
         }
       });
+
     UsersService.updateUser(req.app.get("db"), req.params.user_id, userToUpdate)
       .then(numRowsAffected => {
         res.status(204).end();
       })
       .catch(next);
   });
+
+module.exports = usersRouter;
