@@ -4,8 +4,3 @@ CREATE TABLE blogful_articles (
     content TEXT,
     date_published TIMESTAMP DEFAULT now() NOT NULL
 );
-
-ALTER TABLE blogful_articles 
-  ADD COLUMN 
-    author INTEGER REFERENCES blogful_users(id) 
-    ON DELETE SET NULL;

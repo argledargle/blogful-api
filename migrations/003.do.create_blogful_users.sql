@@ -6,3 +6,8 @@ CREATE TABLE blogful_users (
   nickname TEXT,
   date_created TIMESTAMP NOT NULL DEFAULT now()
 );
+
+ALTER TABLE blogful_articles 
+  ADD COLUMN 
+    author INTEGER REFERENCES blogful_users(id) 
+    ON DELETE SET NULL;
